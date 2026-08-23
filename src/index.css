@@ -1,0 +1,190 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Offsets anchor scrolling so headings don't hide under the fixed navbar */
+  section[id] {
+    scroll-margin-top: 4.5rem;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display font-medium tracking-tight text-sumi;
+  }
+
+  ::selection {
+    background: rgba(95, 112, 82, 0.25);
+    color: #e6e6e6;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme("colors.moss.DEFAULT");
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  .wrap {
+    @apply mx-auto w-full max-w-content px-5 sm:px-8 lg:px-10;
+  }
+
+  /* Every main section fills at least the viewport and centers its content
+     vertically within that space, so scrolling reads as one full "page" per
+     section rather than content-height blocks of varying size. */
+  .section {
+    @apply  min-h-[100dvh];
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.18em] uppercase text-moss-deep;
+  }
+  .eyebrow::before {
+    content: "";
+    @apply inline-block h-px w-5 bg-current;
+  }
+
+  .btn {
+    @apply relative inline-flex items-center gap-2 overflow-hidden rounded-sm px-6 py-3
+      font-mono text-[13px] uppercase tracking-wide text-rice bg-sumi
+      transition-transform duration-300 ease-zen hover:-translate-y-0.5 hover:shadow-soft;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-sumi border border-stone-line-strong hover:bg-sumi hover:text-rice;
+  }
+
+  .field label {
+    @apply block font-mono text-[11px] uppercase tracking-wide text-stone mb-1.5;
+  }
+  .field input,
+  .field textarea {
+    @apply w-full border-0 border-b border-stone-line-strong bg-transparent py-2 text-sumi
+      placeholder:text-sumi/30 focus:border-moss focus:outline-none transition-colors duration-200;
+  }
+
+  .skip-link {
+    @apply fixed left-4 -top-16 z-[999] rounded bg-sumi px-4 py-2 text-rice transition-all duration-200 focus:top-4;
+  }
+}
+
+/* Minimal typographic styling for rendered blog Markdown (see lib/markdown.ts) */
+.prose-zen h2 { @apply mt-8 mb-3 font-display text-2xl text-sumi; }
+.prose-zen h3 { @apply mt-6 mb-2 font-display text-xl text-sumi; }
+.prose-zen h4 { @apply mt-5 mb-2 font-display text-lg text-sumi; }
+.prose-zen strong { @apply text-sumi font-semibold; }
+.prose-zen em { @apply italic; }
+.prose-zen code { @apply rounded-sm bg-sumi/[0.06] px-1.5 py-0.5 font-mono text-[0.85em] text-indigo-deep; }
+.prose-zen pre { @apply my-5 overflow-x-auto rounded-md bg-sumi p-4 text-rice; }
+.prose-zen pre code { @apply bg-transparent p-0 text-rice; }
+.prose-zen ul, .prose-zen ol { @apply my-4 ml-5 flex flex-col gap-1.5; }
+.prose-zen ul { @apply list-disc; }
+.prose-zen ol { @apply list-decimal; }
+.prose-zen hr { @apply my-8 border-stone-line; }
+
+/* Preloader crack — single stroke drawn on mount, ported from v1's Preloader */
+.preloader-crack {
+  stroke-dasharray: 420;
+  stroke-dashoffset: 420;
+  animation: draw-crack 1000ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes draw-crack {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .preloader-crack {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Hero wallpaper slideshow */
+.hero-slide {
+  transition: opacity 1400ms cubic-bezier(0.22, 1, 0.36, 1), transform 6s linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide {
+    transition: opacity 400ms ease;
+  }
+}
+
+/* Custom cursor — dot + trailing ring, ported from v1's CustomCursor */
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  border-radius: 50%;
+  transform: translate3d(-100px, -100px, 0);
+}
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px;
+  background: #5f7052; /* moss */
+}
+.cursor-ring {
+  width: 32px;
+  height: 32px;
+  margin: -16px;
+  border: 1px solid rgba(51, 65, 92, 0.45); /* indigo */
+  transition: width 220ms cubic-bezier(0.22, 1, 0.36, 1), height 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    margin 220ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cursor-ring-active {
+  width: 52px;
+  height: 52px;
+  margin: -26px;
+  border-color: #5f7052; /* moss */
+}
+body.custom-cursor-active,
+body.custom-cursor-active a,
+body.custom-cursor-active button {
+  cursor: none;
+}
+
+/* Scrollbar hidden site-wide — scrolling still works fully via wheel,
+   trackpad, keyboard, and touch, this just removes the visible bar itself
+   to match the site's clean, chrome-light aesthetic. */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* older Edge / IE */
+}
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, newer Edge */
+}
+
+/* Keep browser autofill from changing form field appearance */
+/* input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: inherit;
+  -webkit-box-shadow: 0 0 0 1000px transparent inset;
+  box-shadow: 0 0 0 1000px transparent inset;
+  transition: background-color 9999s ease-in-out 0s;
+} */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f5f1e8 !important;
+  color: #f5f1e8 !important;
+
+  -webkit-box-shadow: 0 0 0 1000px rgba(245, 241, 232, 0) inset !important;
+  box-shadow: 0 0 0 1000px rgba(245, 241, 232, 0) inset !important;
+
+  transition: background-color 9999s ease-in-out 0s;
+  caret-color: #f5f1e8;
+}

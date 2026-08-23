@@ -1,0 +1,73 @@
+{
+  "updated": "2026-08-15T10:17:32.969Z",
+  "posts": [
+    {
+      "file": "building-a-more-open-digital-workspace.md",
+      "slug": "open-source-digital-workspace",
+      "title": "Building a More Open Digital Workspace",
+      "date": "2026-08-15",
+      "tags": [
+        "open-source",
+        "privacy",
+        "local-first",
+        "self-hosting",
+        "linux",
+        "digital-sovereignty",
+        "productivity"
+      ]
+    },
+    {
+      "file": "rediscovering-frutiger-aero.md",
+      "slug": "rediscovering-frutiger-aero",
+      "title": "\"Rediscovering Frutiger Aero: A Nostalgic 2000s UI Aesthetic\"",
+      "date": "2026-08-03",
+      "tags": [
+        "design",
+        "UI",
+        "typography",
+        "nostalgia",
+        "Frutiger",
+        "aesthetics"
+      ]
+    },
+    {
+      "file": "minimalism-or-maximalism.md",
+      "slug": "minimalism-or-maximalism",
+      "title": "Minimalism or Maximalism? Finding the Right Balance",
+      "date": "2026-07-29",
+      "tags": [
+        "design",
+        "productivity",
+        "minimalism",
+        "maximalism",
+        "philosophy",
+        "technology"
+      ]
+    },
+    {
+      "file": "local-first-computing.md",
+      "slug": "local-first-computing",
+      "title": "Why I Believe in Local-First Computing",
+      "date": "2026-07-23",
+      "tags": [
+        "self-hosting",
+        "privacy",
+        "homelab",
+        "local-first",
+        "open-source"
+      ]
+    },
+    {
+      "file": "portfolio-journey.md",
+      "slug": "portfolio-journey",
+      "title": "Building My Digital Workspace",
+      "date": "2026-07-22",
+      "tags": [
+        "portfolio",
+        "web-development",
+        "cybersecurity",
+        "personal"
+      ]
+    }
+  ]
+}

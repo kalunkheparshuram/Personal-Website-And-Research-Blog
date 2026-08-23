@@ -1,0 +1,69 @@
+{
+  "updated": "2026-08-03T06:30:40.519Z",
+  "categories": [
+    {
+      "name": "clouds",
+      "images": [
+        {
+          "file": "☁️ Cloud Whisper.jpg",
+          "title": "☁️ Cloud Whisper"
+        },
+        {
+          "file": "💭 Quiet Infinity.jpg",
+          "title": "💭 Quiet Infinity"
+        },
+        {
+          "file": "🤍 Sky Remembers.jpg",
+          "title": "🤍 Sky Remembers"
+        }
+      ]
+    },
+    {
+      "name": "motorcycle",
+      "images": [
+        {
+          "file": "🍂 Every mile left something behind..jpg",
+          "title": "🍂 Every mile left something behind."
+        }
+      ]
+    },
+    {
+      "name": "nature",
+      "images": [
+        {
+          "file": "✨ Emerald Dreamscape.jpg",
+          "title": "✨ Emerald Dreamscape"
+        },
+        {
+          "file": "🌄 Realm of Everlight.jpg",
+          "title": "🌄 Realm of Everlight"
+        },
+        {
+          "file": "🌌 Starry Night.jpg",
+          "title": "🌌 Starry Night"
+        },
+        {
+          "file": "🌺 Bloom Forever.jpg",
+          "title": "🌺 Bloom Forever"
+        },
+        {
+          "file": "💫 Ethereal Path.jpg",
+          "title": "💫 Ethereal Path"
+        },
+        {
+          "file": "🕉️ Celestial Presence (ॐ नमः शिवाय).jpg",
+          "title": "🕉️ Celestial Presence (ॐ नमः शिवाय)"
+        }
+      ]
+    },
+    {
+      "name": "sky",
+      "images": [
+        {
+          "file": "✨ Luminous Horizon.jpg",
+          "title": "✨ Luminous Horizon"
+        }
+      ]
+    }
+  ]
+}
