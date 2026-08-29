@@ -54,6 +54,7 @@ export function useYouTubePlaylistPlayer(playlistId: string) {
   // Guards against creating the player more than once (e.g. rapid double
   // clicks on "play" before the first init has resolved).
   const initializingRef = useRef(false);
+  const historyRef = useRef<number[]>([]);
 
   const [ready, setReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -102,10 +103,11 @@ export function useYouTubePlaylistPlayer(playlistId: string) {
               playerRef.current = event.target;
               setReady(true);
 
-              // Cue (not play) a random track from the playlist so the
-              // very first "play" press starts somewhere other than
-              // track one — cueing doesn't attempt playback, so it can't
-              // be blocked the way autoplay was.
+              // Turn on shuffle so next/prev and auto-advance-on-end all follow a
+              // randomized order too — without this, only the very first track was
+              // ever random; everything after it just walked the playlist in order.
+              event.target.setShuffle(true);
+
               const playlist = event.target.getPlaylist();
               if (playlist && playlist.length > 0) {
                 const randomIndex = Math.floor(Math.random() * playlist.length);
@@ -209,18 +211,37 @@ export function useYouTubePlaylistPlayer(playlistId: string) {
     }
   };
 
+  /** Picks a random track from the playlist, avoiding an immediate repeat when possible. */
   const next = () => {
     const player = playerRef.current;
     if (!player || !ready) return;
+
+    const playlist = player.getPlaylist();
+    if (!playlist || playlist.length === 0) return;
+
+    // Remember where we are before jumping away, so "previous" has
+    // something real to go back to.
+    const currentIndex = player.getPlaylistIndex();
+    historyRef.current.push(currentIndex);
+
+    let randomIndex = Math.floor(Math.random() * playlist.length);
+    if (playlist.length > 1 && randomIndex === currentIndex) {
+      randomIndex = (randomIndex + 1) % playlist.length;
+    }
+
     setIsBuffering(true);
-    player.nextVideo();
+    player.playVideoAt(randomIndex);
   };
 
   const prev = () => {
     const player = playerRef.current;
     if (!player || !ready) return;
+
+    const lastIndex = historyRef.current.pop();
+    if (lastIndex === undefined) return; // nothing played before this yet
+
     setIsBuffering(true);
-    player.previousVideo();
+    player.playVideoAt(lastIndex);
   };
 
   return {
