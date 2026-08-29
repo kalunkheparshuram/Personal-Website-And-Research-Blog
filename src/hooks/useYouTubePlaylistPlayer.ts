@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 declare global {
   interface Window {
@@ -51,22 +51,38 @@ function loadYouTubeIframeApi(): Promise<void> {
 export function useYouTubePlaylistPlayer(playlistId: string) {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
+  // Guards against creating the player more than once (e.g. rapid double
+  // clicks on "play" before the first init has resolved).
+  const initializingRef = useRef(false);
 
   const [ready, setReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState<{
+    title: string;
+    author: string;
+  } | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    setReady(false);
-    setIsPlaying(false);
-    setIsBuffering(false);
+  // BUG FIX: the player used to be created eagerly on mount with
+  // `playerVars: { autoplay: 1 }` and no `mute`. Browsers block unmuted
+  // autoplay that isn't a direct response to a user gesture, so that
+  // `playVideoAt()` call silently failed on every first visit — no
+  // PLAYING/PAUSED state ever arrived, `isBuffering` stayed `true`
+  // forever, and the play button showed a permanent loading spinner from
+  // the moment the page loaded, whether or not anyone ever touched it.
+  //
+  // Fixed by not touching YouTube (no script injected, no player created,
+  // no autoplay attempted) until the visitor actually presses play — a
+  // genuine user gesture, which browsers do allow to start playback.
+  const initialize = useCallback(() => {
+    if (initializingRef.current || playerRef.current) return;
+    initializingRef.current = true;
+    setIsBuffering(true);
 
     loadYouTubeIframeApi()
       .then(() => {
-        if (cancelled || !containerRef.current || !window.YT?.Player) {
-          return;
+        if (!containerRef.current || !window.YT?.Player) {
+          throw new Error("YouTube IFrame API unavailable");
         }
 
         const player = new window.YT.Player(containerRef.current, {
@@ -76,7 +92,6 @@ export function useYouTubePlaylistPlayer(playlistId: string) {
           playerVars: {
             listType: "playlist",
             list: playlistId,
-            autoplay: 1,
             controls: 0,
             playsinline: 1,
             rel: 0,
@@ -84,28 +99,24 @@ export function useYouTubePlaylistPlayer(playlistId: string) {
 
           events: {
             onReady: (event: any) => {
-              if (cancelled) return;
-
               playerRef.current = event.target;
-
               setReady(true);
-              setIsBuffering(true);
-              setIsPlaying(false);
 
-              // Pick a random track from the playlist.
+              // Cue (not play) a random track from the playlist so the
+              // very first "play" press starts somewhere other than
+              // track one — cueing doesn't attempt playback, so it can't
+              // be blocked the way autoplay was.
               const playlist = event.target.getPlaylist();
-
               if (playlist && playlist.length > 0) {
                 const randomIndex = Math.floor(Math.random() * playlist.length);
-
                 event.target.playVideoAt(randomIndex);
+              } else {
+                event.target.playVideo();
               }
             },
 
             onStateChange: (event: any) => {
-              if (cancelled || !window.YT?.PlayerState) {
-                return;
-              }
+              if (!window.YT?.PlayerState) return;
 
               const state = event.data;
               const states = window.YT.PlayerState;
@@ -116,10 +127,18 @@ export function useYouTubePlaylistPlayer(playlistId: string) {
                   setIsPlaying(false);
                   break;
 
-                case states.PLAYING:
+                case states.PLAYING: {
                   setIsBuffering(false);
                   setIsPlaying(true);
+                  const data = event.target.getVideoData?.();
+                  if (data) {
+                    setCurrentTrack({
+                      title: data.title || "",
+                      author: data.author || "",
+                    });
+                  }
                   break;
+                }
 
                 case states.PAUSED:
                   setIsBuffering(false);
@@ -132,18 +151,16 @@ export function useYouTubePlaylistPlayer(playlistId: string) {
                   break;
 
                 case states.CUED:
-                  setIsBuffering(true);
+                  setIsBuffering(false);
                   setIsPlaying(false);
                   break;
               }
             },
 
             onError: (event: any) => {
-              if (cancelled) return;
-
               setIsPlaying(false);
               setIsBuffering(false);
-
+              initializingRef.current = false;
               console.error("YouTube player error:", event.data);
             },
           },
@@ -152,14 +169,14 @@ export function useYouTubePlaylistPlayer(playlistId: string) {
         playerRef.current = player;
       })
       .catch((error) => {
-        if (!cancelled) {
-          console.error("YouTube IFrame API failed:", error);
-        }
+        console.error("YouTube IFrame API failed:", error);
+        setIsBuffering(false);
+        initializingRef.current = false;
       });
+  }, [playlistId]);
 
+  useEffect(() => {
     return () => {
-      cancelled = true;
-
       if (playerRef.current) {
         try {
           playerRef.current.destroy();
@@ -167,18 +184,23 @@ export function useYouTubePlaylistPlayer(playlistId: string) {
           // Player may already have been destroyed
         }
       }
-
       playerRef.current = null;
     };
-  }, [playlistId]);
+  }, []);
 
   const playPause = () => {
-    const player = playerRef.current;
+    // First-ever press: nothing has been created yet — do that now. This
+    // is the user gesture that makes the subsequent playVideoAt() in
+    // onReady allowed to actually start audio.
+    if (!playerRef.current) {
+      initialize();
+      return;
+    }
 
-    if (!player || !ready) return;
+    const player = playerRef.current;
+    if (!ready) return;
 
     const state = player.getPlayerState();
-
     if (state === window.YT?.PlayerState?.PLAYING) {
       player.pauseVideo();
     } else {
@@ -189,18 +211,14 @@ export function useYouTubePlaylistPlayer(playlistId: string) {
 
   const next = () => {
     const player = playerRef.current;
-
     if (!player || !ready) return;
-
     setIsBuffering(true);
     player.nextVideo();
   };
 
   const prev = () => {
     const player = playerRef.current;
-
     if (!player || !ready) return;
-
     setIsBuffering(true);
     player.previousVideo();
   };
@@ -210,6 +228,7 @@ export function useYouTubePlaylistPlayer(playlistId: string) {
     ready,
     isPlaying,
     isBuffering,
+    currentTrack,
     playPause,
     next,
     prev,

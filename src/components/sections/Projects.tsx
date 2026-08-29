@@ -79,7 +79,7 @@ export default function Projects() {
     <section id="projects" className="section border-b border-stone-line bg-rice py-20">
       <div className="wrap">
         <SectionHeading
-          plotNo="PLOT_03"
+          caseNo="CASE_03"
           title="Projects"
           kicker="Tools built out of a need, kept because they still get used."
         />

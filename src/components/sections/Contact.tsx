@@ -136,7 +136,7 @@ export default function Contact() {
         className="pointer-events-none absolute -left-24 -bottom-24 h-96 w-96 opacity-30"
       />
       <div className="wrap relative">
-        <span className="eyebrow !text-moss-soft">PLOT_06</span>
+        <span className="eyebrow !text-moss-soft">CASE_06</span>
         <h2 className="mt-2 text-3xl sm:text-4xl lg:text-[2.75rem] text-rice">
           Contact
         </h2>
@@ -156,7 +156,7 @@ export default function Contact() {
             {/* ---- Map ---- */}
             <div className="relative items-center border-b border-rice/10 pb-10 ">
               <div
-                className="relative h-[400px] w-[100%] overflow-hidden rounded-md border border-rice/15 m-[0]"
+                className="relative h-[400px] w-[100%] overflow-hidden border border-rice/15 m-[0]"
                 style={{
                   filter:
                     "grayscale(0.6) sepia(0.1) hue-rotate(180deg) saturate(1.1) brightness(0.85)",
@@ -191,7 +191,7 @@ export default function Contact() {
             <form
               noValidate
               onSubmit={handleSubmit}
-              className="rounded-md border border-rice/15 bg-rice/[0.04] p-6 sm:p-8"
+              className="border border-rice/15 bg-rice/[0.04] p-6 sm:p-8"
             >
               <div className="field mb-5">
                 <label htmlFor="name" className="!text-rice/55">

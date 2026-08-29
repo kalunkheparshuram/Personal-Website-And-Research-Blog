@@ -35,9 +35,21 @@
 
   /* Every main section fills at least the viewport and centers its content
      vertically within that space, so scrolling reads as one full "page" per
-     section rather than content-height blocks of varying size. */
+     section rather than content-height blocks of varying size.
+
+     BUG FIX: this was `min-h-[100dvh]` only. Tailwind's arbitrary-value
+     utility emits a single `min-height: 100dvh` declaration with no
+     fallback — browsers/WebViews that don't understand `dvh` (notably
+     older iOS Safari and some in-app Android WebViews) treat that whole
+     declaration as invalid and drop it, leaving the section with *no*
+     minimum height at all rather than degrading gracefully. `min-h-screen`
+     (100vh) plus `min-h-dvh` (100dvh) are both real Tailwind core
+     utilities; Tailwind's own utility ordering emits the `dvh` rule after
+     the `vh` one, so unsupported browsers keep the `vh` value and
+     supporting ones get the `dvh` value that correctly accounts for
+     mobile browser chrome. */
   .section {
-    @apply  min-h-[100dvh];
+    @apply min-h-screen min-h-dvh;
   }
 
   .eyebrow {
@@ -84,6 +96,16 @@
 .prose-zen ul { @apply list-disc; }
 .prose-zen ol { @apply list-decimal; }
 .prose-zen hr { @apply my-8 border-stone-line; }
+
+/* Custom min-height utility with a vh fallback, for the one spot (Footer)
+   that needs something other than the full 100dvh Tailwind's core utility
+   covers. Same reasoning as the .section fix above: declare the vh value
+   first so unsupported browsers still get a sane minimum height, then let
+   dvh override it where supported. */
+.min-h-60dvh {
+  min-height: 60vh;
+  min-height: 60dvh;
+}
 
 /* Preloader crack — single stroke drawn on mount, ported from v1's Preloader */
 .preloader-crack {
@@ -187,4 +209,27 @@ textarea:-webkit-autofill:focus {
 
   transition: background-color 9999s ease-in-out 0s;
   caret-color: #f5f1e8;
+}
+
+
+
+.duration-700 {
+    transition-duration: 3000ms;
+}
+
+.transition-opacity {
+    transition-duration: 1500ms;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 9s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
 }

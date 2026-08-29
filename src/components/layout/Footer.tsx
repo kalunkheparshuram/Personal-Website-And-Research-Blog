@@ -1,13 +1,54 @@
-import { Github, Linkedin, Instagram, Send } from "lucide-react";
-import { contactLinks, footerColumns } from "../../data/content";
+import { useState, type FormEvent } from "react";
+import { Github, Linkedin, Instagram, Send, ArrowRight, Check } from "lucide-react";
+import { contactEmail, contactLinks, footerColumns } from "../../data/content";
 import GrowthRings from "./GrowthRings";
 
 const iconMap = { GitHub: Github, LinkedIn: Linkedin, Instagram: Instagram, Telegram: Send };
 
-/** Ported 1:1 from v1's Footer NewsletterForm — same validation and copy. */
+/**
+ * BUG FIX: this previously rendered only a label and a paragraph of copy —
+ * no `<input>`, no submit button, no `<form>` at all. It looked like a
+ * newsletter signup but had no way to actually submit anything. Rebuilt as
+ * a real, validated form, posting to the same formsubmit.co endpoint the
+ * Contact section already uses so it doesn't need a separate backend.
+ */
 function NewsletterForm() {
-  
-  
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    const trimmed = email.trim();
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!trimmed || !emailPattern.test(trimmed)) {
+      setError("Enter a valid email to subscribe.");
+      return;
+    }
+    setError("");
+    setStatus("sending");
+
+    try {
+      const response = await fetch(`https://formsubmit.co/ajax/${contactEmail}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          email: trimmed,
+          _subject: "New portfolio newsletter signup",
+          _template: "table",
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Failed to subscribe");
+      }
+      setStatus("sent");
+      setEmail("");
+    } catch {
+      setStatus("error");
+    }
+  };
 
   return (
     <div className="max-w-xs">
@@ -17,19 +58,55 @@ function NewsletterForm() {
       <p className="mb-4 text-[13px] text-rice/55">
         A rare email when there's a new writeup, CVE, or lab worth sharing. No spam, no schedule.
       </p>
+
+      <form onSubmit={handleSubmit} noValidate className="flex items-center gap-2 border-b border-rice/25 pb-2">
+        <label htmlFor="footer-email" className="sr-only">
+          Email address
+        </label>
+        <input
+          id="footer-email"
+          type="email"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            if (error) setError("");
+          }}
+          placeholder="you@example.com"
+          autoComplete="email"
+          aria-invalid={Boolean(error)}
+          aria-describedby="footer-email-status"
+          className="w-full flex-1 bg-transparent text-sm text-rice placeholder:text-rice/35 focus:outline-none"
+        />
+        <button
+          type="submit"
+          disabled={status === "sending"}
+          aria-label="Subscribe"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-moss-soft transition-colors duration-200 hover:bg-rice/10 disabled:opacity-50"
+        >
+          {status === "sent" ? <Check size={15} strokeWidth={2} /> : <ArrowRight size={15} strokeWidth={1.8} />}
+        </button>
+      </form>
+
+      <p id="footer-email-status" role="status" aria-live="polite" className="mt-2 min-h-[1.2em] text-xs">
+        {error && <span className="text-red-300">{error}</span>}
+        {!error && status === "sent" && <span className="text-moss-soft">Subscribed — thanks for reading.</span>}
+        {!error && status === "error" && (
+          <span className="text-red-300">Something went wrong — try again shortly.</span>
+        )}
+      </p>
     </div>
   );
 }
 
 export default function Footer() {
   return (
-    <footer className="relative flex min-h-[60dvh] flex-col overflow-hidden bg-sumi text-rice/80">
+    <footer className="relative flex min-h-60dvh flex-col overflow-hidden bg-sumi text-rice/80">
       <GrowthRings
         tone="duo"
         className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 opacity-40"
       />
 
-      {/* This block absorbs the extra vertical space from min-h-[100dvh].
+      {/* This block absorbs the extra vertical space from min-h-60dvh.
           justify-end (not center) so any slack collapses to a blank gap
           ABOVE the content instead of nudging the content itself upward —
           otherwise, when the page is scrolled all the way to the bottom,
@@ -102,7 +179,7 @@ export default function Footer() {
 
       {/* ---- Bottom bar ---- */}
       <div className="wrap relative flex flex-wrap items-center justify-between gap-2 py-6 text-[13px] text-rice/50">
-        <p className="m-0">© {new Date().getFullYear()} Parshuram Kalunkhe. All rights reserved.</p>
+        <p className="m-0">© {new Date().getFullYear()} Parshuram Kalunkhe. Vibe Coded - Claude.</p>
         <p className="m-0 font-mono">// stay curious. stay secure.</p>
       </div>
     </footer>

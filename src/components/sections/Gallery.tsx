@@ -69,7 +69,7 @@ export default function Gallery() {
     <section id="gallery" className="section border-b border-stone-line bg-rice-deep py-20">
       <div className="wrap">
         <SectionHeading
-          plotNo="PLOT_04"
+          caseNo="CASE_04"
           title="Gallery"
           kicker="A few frames outside the terminal — same eye for detail, pointed somewhere quieter."
         />
@@ -96,7 +96,7 @@ export default function Gallery() {
         {status === "loading" && (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="aspect-square animate-pulse rounded-md bg-sumi/[0.06]" />
+              <div key={i} className="aspect-square animate-pulse bg-sumi/[0.06]" />
             ))}
           </div>
         )}

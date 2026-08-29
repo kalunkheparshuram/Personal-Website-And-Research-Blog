@@ -10,7 +10,7 @@ export default function Skills() {
     <section id="skills" className="section border-b border-stone-line bg-rice-deep py-20">
       <div className="wrap">
         <SectionHeading
-          plotNo="PLOT_02"
+          caseNo="CASE_02"
           title="Skills"
           kicker="What I reach for when testing a system, and what I use to build one."
           align="right"

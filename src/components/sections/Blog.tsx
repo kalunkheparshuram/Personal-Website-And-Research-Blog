@@ -175,7 +175,7 @@ export default function Blog() {
     <section id="blog" className="section border-b border-stone-line bg-rice py-20">
       <div className="wrap">
         <SectionHeading
-          plotNo="PLOT_05"
+          caseNo="CASE_05"
           title="Blog"
           kicker="Writeups, notes and things learned the hard way — published as they're finished."
           align="right"

@@ -12,34 +12,110 @@ export const navItems: NavItem[] = [
 // Ported 1:1 from the original site's skills.js SKILLS object.
 export const skillGroups: SkillGroup[] = [
   {
-    category: "Security Domains",
+    category: "Security Operations",
     skills: [
-      "Web Application Security",
-      "Bug Bounty Hunting",
-      "Security Research",
+      "SOC Operations",
+      "Security Monitoring",
+      "Alert Triage",
+      "Incident Investigation",
+      "Threat Detection",
+      "Log Analysis",
+      "IOC Analysis",
+      "Incident Response",
+    ],
+  },
+
+  {
+    category: "SIEM, XDR & Endpoint Security",
+    skills: [
+      "Microsoft Sentinel",
+      "Microsoft Defender",
+      "Security Event Analysis",
+      "Detection & Investigation",
+      "Email Security",
+    ],
+  },
+
+  {
+    category: "Network & Systems Security",
+    skills: [
+      "Network Security",
+      "TCP/IP",
+      "DNS",
+      "HTTP/HTTPS",
+      "Wireshark",
+      "Windows",
+      "Linux",
+      "Active Directory",
+    ],
+  },
+
+  {
+    category: "Security Assessment & Research",
+    skills: [
       "Vulnerability Assessment",
-      "Penetration Testing",
+      "Risk Assessment",
+      "CVE Analysis",
+      "CVSS",
+      "Web Application Security",
       "OWASP Top 10",
-      "API Security",
       "Responsible Disclosure",
     ],
   },
+
   {
-    category: "Bug Bounty Platforms",
-    skills: ["HackerOne", "Bugcrowd", "OpenBugBounty"],
+    category: "Bug Bounty & Security Research",
+    skills: [
+      "Bug Bounty Hunting",
+      "Security Research",
+      "Burp Suite",
+      "Nmap",
+      "OWASP ZAP",
+      "ffuf",
+      "nuclei",
+      "API Security",
+    ],
   },
+
   {
-    category: "Security Tools",
-    skills: ["Burp Suite", "Nmap", "OWASP ZAP", "ffuf", "nuclei", "subfinder", "httpx", "amass"],
-  },
-  {
-    category: "Development & Utilities",
-    skills: ["Python", "Linux", "Git", "GitHub"],
+    category: "Scripting & Development",
+    skills: ["Python", "Git", "GitHub"],
   },
 ];
 
 // Ported 1:1 from the original site's PROJECTS array (jsDelivr-hosted screenshots).
 export const projects: Project[] = [
+  // SOC / Defensive Security Projects
+  {
+    id: "security-monitoring-lab",
+    title: "Security Monitoring & Threat Detection Lab",
+    description:
+      "Practical SOC lab for analyzing security events, investigating alerts, identifying indicators of compromise, and documenting incident investigation workflows.",
+    tech: [
+      "microsoft-sentinel",
+      "microsoft-defender",
+      "siem",
+      "xdr",
+      "kql",
+      "windows",
+      "linux",
+    ],
+    repo: "https://github.com/kalunkheparshuram/Security-Monitoring-And-Threat-Detection-Lab",
+    imageUrl: "https://www.cyberwhiz.co.uk/images/blue-team-hero.png",
+  },
+
+  // Security Research — secondary
+  {
+    id: "vulnerability-assessment-lab",
+    title: "Offensive Security & Vulnerability Assessment Lab",
+    description:
+      "Isolated security lab for reconnaissance, service enumeration, vulnerability assessment, controlled exploitation, network traffic analysis, and security reporting.",
+    tech: ["kali-linux", "nmap", "burp-suite", "wireshark", "metasploitable"],
+    repo: "https://github.com/kalunkheparshuram/Offensive-Security-And-Vulnerability-Assessment-Lab",
+    imageUrl: "https://linuxhandbook.com/content/images/size/w1200/format/avif/2021/11/homelab-setup.webp",
+  },
+  
+  // Technical / Personal Projects
   {
     id: "media-dl",
     title: "media-dl",
@@ -47,7 +123,8 @@ export const projects: Project[] = [
       "Small self-hosted Flask app around yt-dlp (video/audio) and gallery-dl (images/galleries) for downloading from various platforms.",
     tech: ["python", "ffmpeg", "yt-dlp", "gallery-dl"],
     repo: "https://github.com/kalunkheparshuram/media-dl",
-    imageUrl: "https://cdn.jsdelivr.net/gh/kalunkheparshuram/media-dl@main/screenshots/media-dl.png",
+    imageUrl:
+      "https://cdn.jsdelivr.net/gh/kalunkheparshuram/media-dl@main/screenshots/media-dl.png",
   },
   {
     id: "i3wm-rice",
@@ -60,7 +137,6 @@ export const projects: Project[] = [
       "https://cdn.jsdelivr.net/gh/kalunkheparshuram/i3wm@main/assets/screenshots/debian_linux.png",
   },
 ];
-
 export const contactEmail = "parshuramkalunkhe@proton.me";
 
 export const contactLinks: ContactLink[] = [
@@ -87,7 +163,10 @@ export const footerColumns: { title: string; links: NavItem[] }[] = [
     links: [
       { label: "Opensource Alternative", href: "https://www.opensourcealternative.to/" },
       { label: "Public APIs", href: "https://github.com/public-apis/public-apis" },
-      { label: "Defronix Academy", href: "#bloghttps://github.com/defronixpro/Defronix-Cybersecurity-Roadmap" },
+      // BUG FIX: this was "#bloghttps://github.com/..." — a stray "#blog"
+      // fragment fused onto the real URL, which made the link a dead
+      // in-page anchor instead of navigating anywhere.
+      { label: "Defronix Academy", href: "https://github.com/defronixpro/Defronix-Cybersecurity-Roadmap" },
       { label: "Hackviser", href: "https://hackviser.com/" },
     ],
   },
@@ -110,7 +189,7 @@ export const footerColumns: { title: string; links: NavItem[] }[] = [
         label: "HackTheBox",
         href: "https://profile.hackthebox.com/profile/019d9990-f33e-7260-aae7-79f4a87c43f5",
       },
-      { label: "TryHackMe", href: "https://tryhackme.com/p/ParshuramK." },
+      { label: "TryHackMe", href: "https://tryhackme.com/p/ParshuramK" },
       {
         label: "Certifications",
         href: "https://www.linkedin.com/in/parshuramkalunkhe/details/certifications/",

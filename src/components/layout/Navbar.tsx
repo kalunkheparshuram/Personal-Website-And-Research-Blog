@@ -159,6 +159,7 @@ export default function Navbar() {
             ready={player.ready}
             isPlaying={player.isPlaying}
             isBuffering={player.isBuffering}
+            track={player.currentTrack}
             onPrev={player.prev}
             onPlayPause={player.playPause}
             onNext={player.next}
@@ -278,10 +279,11 @@ export default function Navbar() {
                   ready={player.ready}
                   isPlaying={player.isPlaying}
                   isBuffering={player.isBuffering}
+                  track={player.currentTrack}
                   onPrev={player.prev}
                   onPlayPause={player.playPause}
                   onNext={player.next}
-                  light
+                  light={!scrolled}
                 />
               </m.div>
             </nav>

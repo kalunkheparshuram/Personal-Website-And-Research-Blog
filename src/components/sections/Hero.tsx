@@ -139,7 +139,7 @@ export default function Hero() {
   return (
     <header
       id="hero"
-      className="relative flex min-h-[100dvh] items-center overflow-hidden border-b border-stone-line bg-sumi isolate"
+      className="relative flex min-h-screen min-h-dvh items-center overflow-hidden border-b border-stone-line bg-sumi isolate"
       aria-label="Introduction"
     >
       {/* ---- Wallpaper slideshow layer ---- */}

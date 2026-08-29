@@ -11,7 +11,7 @@ const timeline = [
   },
   {
     group: "Experience",
-    years: "2023 – Present",
+    years: "2025 – Present",
     title: "Freelance Security Researcher",
     text: "Testing web applications with discipline, surfacing what matters, and writing it up clearly enough to act on.",
   },
@@ -40,7 +40,7 @@ export default function About() {
       />
       <div className="wrap relative">
         <SectionHeading
-          plotNo="PLOT_01"
+          caseNo="CASE_01"
           title="About"
           kicker="Security by training. Patience by disposition."
         />
@@ -48,14 +48,6 @@ export default function About() {
         <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
           <ScrollReveal className="lg:mt-4">
             <div className="relative aspect-[4/5] overflow-hidden bg-rice-deep shadow-soft">
-              {/* <img
-                src="http://localhost:8000/ezgif.com-crop.gif"
-                alt="Parshuram Kalunkhe reviewing security findings"
-                loading="lazy"
-                decoding="async"
-                className="h-full w-full object-cover grayscale-[15%]"
-              /> */}
-
               <img
                 src={randomAboutImage}
                 alt="Parshuram Kalunkhe reviewing security findings"
