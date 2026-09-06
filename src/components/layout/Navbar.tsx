@@ -93,11 +93,10 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 py-4 transition-all duration-300 ease-zen md:py-5 ${
-        scrolled
-          ? "border-b border-stone-line bg-[#F5F1E8] py-3 shadow-soft"
-          : ""
-      }`}
+      className={`fixed inset-x-0 top-0 z-50 py-4 transition-all duration-300 ease-zen md:py-5 ${scrolled
+        ? "border-b border-stone-line bg-[#F5F1E8] py-3 shadow-soft"
+        : ""
+        }`}
     >
       {/* Hidden YouTube player backing the music controls below — kept
           mounted here (not inside the mobile menu) so it persists and
@@ -115,14 +114,15 @@ export default function Navbar() {
           the open/close button the instant the menu opened. */}
       <div className="wrap relative z-50 flex items-center justify-between">
         <a
+
           href="#hero"
-          className={`font-display text-xl text-rice transition-colors duration-300 ${
-            scrolled ? "text-sumi" : "text-rice"
-          }`}
+          className={`font-display text-xl transition-colors duration-300 ${scrolled && !open ? "text-sumi" : "text-rice"
+            }`}
         >
           PK
           <span
-            className={`transition-colors duration-300 ${scrolled ? "text-moss" : "text-moss-soft"}`}
+            className={`transition-colors duration-300 ${scrolled && !open ? "text-moss" : "text-moss-soft"
+              }`}
           >
             .
           </span>
@@ -135,22 +135,20 @@ export default function Navbar() {
             <a
               key={item.href}
               href={item.href}
-              className={`font-mono text-xs uppercase tracking-wide transition-colors duration-200 ${
-                scrolled
-                  ? "text-sumi/70 hover:text-moss-deep"
-                  : "text-rice/85 hover:text-moss-soft"
-              }`}
+              className={`font-mono text-xs uppercase tracking-wide transition-colors duration-200 ${scrolled
+                ? "text-sumi/70 hover:text-moss-deep"
+                : "text-rice/85 hover:text-moss-soft"
+                }`}
             >
               {item.label}
             </a>
           ))}
           <a
             href="./pay.html"
-            className={`!py-2 !px-4 text-[11px] transition-colors duration-300 ${
-              scrolled
-                ? "btn-ghost"
-                : "inline-flex items-center gap-2 rounded-sm border border-rice/40 font-mono uppercase tracking-wide text-rice hover:bg-rice hover:text-sumi"
-            }`}
+            className={`!py-2 !px-4 text-[11px] transition-colors duration-300 ${scrolled
+              ? "btn-ghost"
+              : "inline-flex items-center gap-2 rounded-sm border border-rice/40 font-mono uppercase tracking-wide text-rice hover:bg-rice hover:text-sumi"
+              }`}
           >
             Say hello
           </a>
@@ -171,9 +169,8 @@ export default function Navbar() {
             solid dark background regardless of scroll position. */}
         <button
           type="button"
-          className={`flex z-50 h-10 w-10 items-center justify-center transition-colors duration-300 md:hidden ${
-            scrolled ? "text-sumi" : "text-rice"
-          }`}
+          className={`flex z-50 h-10 w-10 items-center justify-center transition-colors duration-300 md:hidden ${scrolled && !open ? "text-sumi" : "text-rice"
+            }`}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           aria-controls="mobile-menu"
@@ -283,7 +280,7 @@ export default function Navbar() {
                   onPrev={player.prev}
                   onPlayPause={player.playPause}
                   onNext={player.next}
-                  light={!scrolled}
+                  light
                 />
               </m.div>
             </nav>
