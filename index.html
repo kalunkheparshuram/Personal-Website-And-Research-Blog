@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- ============ Primary SEO ============ -->
+    <title>Parshuram Kalunkhe — Cybersecurity Analyst &amp; Bug Bounty Hunter</title>
+    <meta
+      name="description"
+      content="Parshuram Kalunkhe — cybersecurity analyst and bug bounty hunter. Web application security, vulnerability research and responsible disclosure, practiced with patience and precision."
+    />
+    <meta name="keywords" content="cybersecurity analyst, bug bounty hunter, penetration testing, vulnerability research, web application security, Parshuram Kalunkhe" />
+    <meta name="author" content="Parshuram Kalunkhe" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#1E1C1A" />
+
+    <!-- ============ Open Graph / social ============ -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Parshuram Kalunkhe — Cybersecurity Analyst & Bug Bounty Hunter" />
+    <meta
+      property="og:description"
+      content="Cybersecurity analyst and bug bounty hunter. Craft: security research. Future: farming."
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <!-- ============ Fonts ============
+         Zen Old Mincho (display) + Zen Kaku Gothic New (body) are
+         Japanese-designed Google Fonts families chosen for the brief's
+         editorial, Japanese-zen direction. JetBrains Mono is used sparingly
+         for labels, tags and technical detail. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Gallery photos, project screenshots, and blog post bodies are all
+         served from jsDelivr (see src/lib/github.ts) — preconnecting saves
+         a DNS+TLS round trip before the first image/fetch request fires. -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <!-- Only the weights actually used by the CSS are requested here (500
+         for headings, 400/600 for body text and its bold/"strong" variant,
+         400 for mono labels). This site previously requested 10 weight
+         files total when only 4 were ever referenced — each unused weight
+         is a wasted request, and Zen Kaku Gothic New's real semibold (600)
+         wasn't requested at all despite being used, so the browser was
+         silently faux-bolding it instead of rendering the actual font. If
+         you add a new font-weight utility to a component, add its weight
+         here too — Tailwind won't warn you if a weight isn't loaded. -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500&family=Zen+Kaku+Gothic+New:wght@400;600&family=JetBrains+Mono:wght@400&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+  </head>
+  <body class="bg-rice text-sumi font-body antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
