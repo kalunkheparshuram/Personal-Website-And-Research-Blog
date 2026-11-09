@@ -10,30 +10,28 @@ declare global {
 
 let apiPromise: Promise<void> | null = null;
 
+/**
+ * Loads the YouTube IFrame API script once. Safe to call many times.
+ * If the script fails, the failed tag is removed so the next call retries
+ * cleanly (the old version left the dead tag behind and then waited
+ * forever on a promise that could never resolve).
+ */
 function loadYouTubeIframeApi(): Promise<void> {
+  if (window.YT?.Player) return Promise.resolve();
   if (apiPromise) return apiPromise;
 
   apiPromise = new Promise((resolve, reject) => {
-    if (window.YT?.Player) {
-      resolve();
-      return;
-    }
-
     const previousCallback = window.onYouTubeIframeAPIReady;
     window.onYouTubeIframeAPIReady = () => {
       previousCallback?.();
       resolve();
     };
 
-    const existingScript = document.querySelector(
-      'script[src="https://www.youtube.com/iframe_api"]',
-    );
-    if (existingScript) return;
-
     const script = document.createElement("script");
     script.src = "https://www.youtube.com/iframe_api";
     script.async = true;
     script.onerror = () => {
+      script.remove();
       apiPromise = null;
       reject(new Error("Failed to load YouTube IFrame API"));
     };
@@ -45,9 +43,15 @@ function loadYouTubeIframeApi(): Promise<void> {
 
 const MAX_HISTORY = 50;
 const MAX_ERROR_STREAK = 5;
-// If a playlist hasn't started playing within this long, treat it as failed
-// instead of leaving the spinner running forever.
-const LOAD_TIMEOUT_MS = 15000;
+// Covers API script + iframe + playlist fetch. GitHub Pages visitors on a
+// cold cache can need well over the old 15s.
+const LOAD_TIMEOUT_MS = 20000;
+
+interface StartOptions {
+  /** true = user wants sound now. false = quiet warm-up, no playback. */
+  autoplay: boolean;
+  attempt?: number;
+}
 
 export function useYouTubePlaylistPlayer(playlists: MusicPlaylist[]) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,10 +59,12 @@ export function useYouTubePlaylistPlayer(playlists: MusicPlaylist[]) {
   const historyRef = useRef<number[]>([]);
   const errorStreakRef = useRef(0);
   const watchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Bumped whenever a player is created or retired. Every player's event
-  // handlers remember the number they were created with and ignore events
-  // once it no longer matches, so a destroyed player can never affect state.
   const generationRef = useRef(0);
+  // User pressed play before the warmed-up player was ready.
+  const pendingPlayRef = useRef(false);
+  // Has the current player produced sound yet? The first play jumps to a
+  // random track; later plays just resume.
+  const hasStartedRef = useRef(false);
 
   const [activePlaylistId, setActivePlaylistId] = useState(playlists[0]?.id ?? "");
   const activePlaylistIdRef = useRef(activePlaylistId);
@@ -78,7 +84,15 @@ export function useYouTubePlaylistPlayer(playlists: MusicPlaylist[]) {
     }
   }, []);
 
-  /** Destroys the current player (if any) and invalidates all of its events. */
+  // Progress is NOT React state: ProgressBar polls this and writes to the DOM.
+  const getProgress = useCallback(() => {
+    const p = playerRef.current;
+    if (!p) return 0;
+    const duration = p.getDuration?.() ?? 0;
+    const current = p.getCurrentTime?.() ?? 0;
+    return duration > 0 ? Math.min(current / duration, 1) : 0;
+  }, []);
+
   const retirePlayer = useCallback(() => {
     generationRef.current += 1;
     clearWatchdog();
@@ -94,19 +108,19 @@ export function useYouTubePlaylistPlayer(playlists: MusicPlaylist[]) {
     containerRef.current?.replaceChildren();
   }, [clearWatchdog]);
 
-  /** Playlist couldn't load: stop everything and say so, rather than play something else. */
+  /** `silent` = background warm-up failed; don't show "unavailable". */
   const failLoad = useCallback(
-    (label: string) => {
+    (label: string, silent = false) => {
       retirePlayer();
+      pendingPlayRef.current = false;
       setReady(false);
       setIsPlaying(false);
       setIsBuffering(false);
-      setCurrentTrack({ title: `${label} unavailable`, author: "" });
+      setCurrentTrack(silent ? null : { title: `${label} unavailable`, author: "" });
     },
     [retirePlayer],
   );
 
-  /** Jumps to a random track in this player's own playlist. */
   const jumpToRandom = useCallback((player: any, recordHistory: boolean) => {
     const list = player.getPlaylist?.();
     if (!Array.isArray(list) || list.length === 0) return false;
@@ -127,24 +141,17 @@ export function useYouTubePlaylistPlayer(playlists: MusicPlaylist[]) {
     return true;
   }, []);
 
-  /** Creates a brand-new player bound to exactly one playlist. */
   const buildPlayer = useCallback(
     (entry: MusicPlaylist, generation: number) => {
+      const stale = () => generation !== generationRef.current;
+      const quiet = () => !pendingPlayRef.current && !hasStartedRef.current;
+
       const host = containerRef.current;
       if (!host || !window.YT?.Player) {
-        failLoad(entry.label);
+        failLoad(entry.label, quiet());
         return;
       }
 
-      const stale = () => generation !== generationRef.current;
-
-      clearWatchdog();
-      watchdogRef.current = setTimeout(() => {
-        if (!stale()) failLoad(entry.label);
-      }, LOAD_TIMEOUT_MS);
-
-      // YT.Player replaces the element it's given with an iframe, so give it
-      // a throwaway child instead of the React-owned container itself.
       const mount = document.createElement("div");
       host.appendChild(mount);
 
@@ -158,12 +165,21 @@ export function useYouTubePlaylistPlayer(playlists: MusicPlaylist[]) {
             controls: 0,
             playsinline: 1,
             rel: 0,
+            enablejsapi: 1,
+            origin: window.location.origin,
           },
           events: {
             onReady: (e: any) => {
               if (stale()) return;
               setReady(true);
-              if (!jumpToRandom(e.target, false)) e.target.playVideo();
+
+              if (pendingPlayRef.current) {
+                // User already pressed play while we were loading.
+                if (!jumpToRandom(e.target, false)) e.target.playVideo();
+              } else {
+                // Quiet warm-up finished: nothing left to wait for.
+                clearWatchdog();
+              }
             },
 
             onStateChange: (e: any) => {
@@ -178,6 +194,8 @@ export function useYouTubePlaylistPlayer(playlists: MusicPlaylist[]) {
 
                 case states.PLAYING: {
                   clearWatchdog();
+                  pendingPlayRef.current = false;
+                  hasStartedRef.current = true;
                   errorStreakRef.current = 0;
                   setIsBuffering(false);
                   setIsPlaying(true);
@@ -198,7 +216,6 @@ export function useYouTubePlaylistPlayer(playlists: MusicPlaylist[]) {
                   break;
 
                 case states.ENDED:
-                  // Keep the shuffle going instead of walking the list in order.
                   setIsPlaying(false);
                   if (!jumpToRandom(e.target, true)) setIsBuffering(false);
                   break;
@@ -209,9 +226,6 @@ export function useYouTubePlaylistPlayer(playlists: MusicPlaylist[]) {
               if (stale()) return;
               console.error("YouTube player error:", e.data, "playlist:", entry.label);
 
-              // 100/101/150 = this one video is missing or can't be embedded.
-              // Skip it — but only if the playlist itself loaded, and give up
-              // after a few in a row so a broken playlist can't loop forever.
               const list = e.target.getPlaylist?.();
               const playlistLoaded = Array.isArray(list) && list.length > 0;
               const skippable = [100, 101, 150].includes(e.data);
@@ -221,21 +235,23 @@ export function useYouTubePlaylistPlayer(playlists: MusicPlaylist[]) {
                 if (jumpToRandom(e.target, false)) return;
               }
 
-              failLoad(entry.label);
+              failLoad(entry.label, quiet());
             },
           },
         });
       } catch (error) {
         console.error("Could not create YouTube player:", error);
-        failLoad(entry.label);
+        failLoad(entry.label, quiet());
       }
     },
     [clearWatchdog, failLoad, jumpToRandom],
   );
 
-  /** Starts (or restarts) playback of one playlist from scratch. */
+  // Lets the watchdog call startPlayback again for its one automatic retry.
+  const startRef = useRef<(key: string, opts: StartOptions) => void>(() => {});
+
   const startPlayback = useCallback(
-    (playlistKey: string) => {
+    (playlistKey: string, { autoplay, attempt = 0 }: StartOptions) => {
       const entry = playlists.find((p) => p.id === playlistKey);
       if (!entry) return;
 
@@ -243,15 +259,29 @@ export function useYouTubePlaylistPlayer(playlists: MusicPlaylist[]) {
       const generation = ++generationRef.current;
       historyRef.current = [];
       errorStreakRef.current = 0;
+      hasStartedRef.current = false;
+      pendingPlayRef.current = autoplay;
 
       setReady(false);
       setIsPlaying(false);
-      setIsBuffering(true);
+      setIsBuffering(autoplay);
       setCurrentTrack(null);
 
-      // If the API is already loaded, build synchronously so the player is
-      // created inside the same click that requested it (browsers are
-      // strictest about that for autoplay).
+      // The watchdog now covers the API script download too, not just the
+      // iframe. A slow first load gets one silent retry before giving up.
+      watchdogRef.current = setTimeout(() => {
+        if (generation !== generationRef.current) return;
+        if (!pendingPlayRef.current) {
+          failLoad(entry.label, true);
+          return;
+        }
+        if (attempt < 1) {
+          startRef.current(playlistKey, { autoplay: true, attempt: attempt + 1 });
+          return;
+        }
+        failLoad(entry.label);
+      }, LOAD_TIMEOUT_MS);
+
       if (window.YT?.Player) {
         buildPlayer(entry, generation);
         return;
@@ -263,14 +293,29 @@ export function useYouTubePlaylistPlayer(playlists: MusicPlaylist[]) {
         })
         .catch((error) => {
           console.error("YouTube IFrame API failed:", error);
-          if (generation === generationRef.current) failLoad(entry.label);
+          if (generation === generationRef.current) {
+            failLoad(entry.label, !pendingPlayRef.current);
+          }
         });
     },
     [playlists, retirePlayer, buildPlayer, failLoad],
   );
+  startRef.current = startPlayback;
 
+  // Warm up in the background once the browser is idle: download the API
+  // and build a paused player. By the time the visitor presses play, the
+  // slow network work is done and playback starts inside their click,
+  // which also keeps mobile browsers from blocking it as "autoplay".
   useEffect(() => {
+    const w = window as any;
+    const run = () => startRef.current(activePlaylistIdRef.current, { autoplay: false });
+    const handle = w.requestIdleCallback
+      ? w.requestIdleCallback(run, { timeout: 4000 })
+      : setTimeout(run, 2000);
+
     return () => {
+      if (w.cancelIdleCallback) w.cancelIdleCallback(handle);
+      else clearTimeout(handle);
       retirePlayer();
     };
   }, [retirePlayer]);
@@ -278,30 +323,38 @@ export function useYouTubePlaylistPlayer(playlists: MusicPlaylist[]) {
   const playPause = () => {
     const player = playerRef.current;
 
-    // Nothing built yet (first press) or the last load failed: (re)start
-    // whichever playlist is currently selected.
+    // Warm-up failed or never ran: build now and play when ready.
     if (!player) {
-      startPlayback(activePlaylistIdRef.current);
+      startPlayback(activePlaylistIdRef.current, { autoplay: true });
       return;
     }
-    if (!ready) return;
+
+    // Still warming up: remember the click, onReady will start playback.
+    if (!ready) {
+      pendingPlayRef.current = true;
+      setIsBuffering(true);
+      return;
+    }
 
     if (player.getPlayerState() === window.YT?.PlayerState?.PLAYING) {
       player.pauseVideo();
+      return;
+    }
+
+    setIsBuffering(true);
+    if (!hasStartedRef.current) {
+      // First play: pick a random track, directly inside the click.
+      if (!jumpToRandom(player, false)) player.playVideo();
     } else {
-      setIsBuffering(true);
       player.playVideo();
     }
   };
 
   const selectPlaylist = (id: string) => {
-    // Already loaded or loading this one — nothing to do. (If it previously
-    // failed there's no player, so picking it again retries.)
     if (id === activePlaylistIdRef.current && playerRef.current) return;
-
     activePlaylistIdRef.current = id;
     setActivePlaylistId(id);
-    startPlayback(id);
+    startPlayback(id, { autoplay: true });
   };
 
   const next = () => {
@@ -314,7 +367,7 @@ export function useYouTubePlaylistPlayer(playlists: MusicPlaylist[]) {
     const player = playerRef.current;
     if (!player || !ready) return;
     const last = historyRef.current.pop();
-    if (last === undefined) return; // nothing played before this yet
+    if (last === undefined) return;
     setIsBuffering(true);
     player.playVideoAt(last);
   };
@@ -325,6 +378,7 @@ export function useYouTubePlaylistPlayer(playlists: MusicPlaylist[]) {
     isPlaying,
     isBuffering,
     currentTrack,
+    getProgress,
     playlists,
     activePlaylistId,
     playPause,

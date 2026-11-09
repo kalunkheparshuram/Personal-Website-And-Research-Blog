@@ -17,8 +17,8 @@
   }
 
   ::selection {
-    background: rgba(95, 112, 82, 0.25);
-    color: #e6e6e6;
+    background: #000000;
+    color: #ffffff;
   }
 
   :focus-visible {
@@ -92,7 +92,7 @@
 .prose-zen code { @apply rounded-sm bg-sumi/[0.06] px-1.5 py-0.5 font-mono text-[0.85em] text-indigo-deep; }
 .prose-zen pre { @apply my-5 overflow-x-auto rounded-md bg-sumi p-4 text-rice; }
 .prose-zen pre code { @apply bg-transparent p-0 text-rice; }
-.prose-zen ul, .prose-zen ol { @apply my-4 ml-5 flex flex-col gap-1.5; }
+.prose-zen ul, .prose-zen ol { @apply my-4 ml-5 flex flex-col; }
 .prose-zen ul { @apply list-disc; }
 .prose-zen ol { @apply list-decimal; }
 .prose-zen hr { @apply my-8 border-stone-line; }
@@ -210,8 +210,6 @@ textarea:-webkit-autofill:focus {
   transition: background-color 9999s ease-in-out 0s;
   caret-color: #f5f1e8;
 }
-
-
 
 .duration-700 {
     transition-duration: 3000ms;

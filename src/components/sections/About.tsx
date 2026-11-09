@@ -64,16 +64,13 @@ export default function About() {
 
           <ScrollReveal delay={0.1}>
             <p className="font-display text-2xl leading-relaxed text-sumi">
-              I'm a cybersecurity analyst and bug bounty hunter — I test how web
-              applications actually behave under pressure, not just how they're
-              supposed to behave on paper.
+              I'm a independent security researcher focused on Vulnerability Assessment and Penetration Testing (VAPT).
             </p>
             <p className="mt-5 text-sumi-soft leading-relaxed">
-              My work spans web application security, vulnerability research and
-              responsible disclosure, practiced hands-on and documented as I go.
-              I'm currently looking for an entry-level Cybersecurity Analyst or
-              SOC Analyst role to build on this foundation with real operational
-              experience.
+              My work spans web application security testing, vulnerability research, penetration testing labs, and responsible disclosure. I believe in learning by doing — building hands-on environments, testing applications, documenting findings, and continuously improving my technical skills. I also participate in bug bounty programs to gain practical experience in identifying and reporting vulnerabilities.
+            </p>
+            <p className="mt-5 text-sumi-soft leading-relaxed">
+               I'm currently seeking an entry-level opportunity as a Junior VAPT Analyst, Junior Penetration Tester, or Vulnerability Assessment Analyst, where I can apply my practical knowledge, strengthen my assessment skills, and contribute to improving application security.
             </p>
             <p className="mt-5 text-sumi-soft leading-relaxed">
               Further out, I'm working toward a second, quieter goal: a life

@@ -6,7 +6,7 @@ const iconMap = { GitHub: Github, LinkedIn: Linkedin, Instagram: Instagram, Tele
 
 export default function Footer() {
   return (
-    <footer className="relative flex min-h-60dvh flex-col overflow-hidden bg-sumi text-rice/80">
+    <footer className="relative flex min-h-60dvh flex-col overflow-hidden bg-sumi text-rice/80 py-[5rem]">
       <GrowthRings
         tone="duo"
         className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 opacity-40"

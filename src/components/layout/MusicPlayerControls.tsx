@@ -18,6 +18,8 @@ interface MusicPlayerControlsProps {
   isPlaying: boolean;
   isBuffering: boolean;
   track: { title: string; author: string } | null;
+  /** Returns 0..1. Read on a timer by ProgressBar only — never state. */
+  getProgress: () => number;
   playlists: MusicPlaylist[];
   activePlaylistId: string;
   onSelectPlaylist: (id: string) => void;
@@ -129,12 +131,79 @@ function PlaylistPicker({
   );
 }
 
+/**
+ * Text scrolling right-to-left in a seamless loop, at a consistent speed
+ * regardless of length. Spacing lives inside each copy (trailing padding)
+ * so 50% of the doubled row is exactly one full repeat.
+ */
+function MarqueeText({ text, className }: { text: string; className: string }) {
+  const seconds = Math.max(6, (text.length * 6.25 + 32) / 22);
+
+  return (
+    <div
+      className={`flex w-max animate-marquee whitespace-nowrap font-mono text-[10px] uppercase tracking-wide ${className}`}
+      style={{ animationDuration: `${seconds}s` }}
+    >
+      <span className="pr-8">{text}</span>
+      <span className="pr-8" aria-hidden="true">
+        {text}
+      </span>
+    </div>
+  );
+}
+
+/**
+ * Owns its own polling and writes to the DOM directly, so playback time
+ * advancing never re-renders the navbar. Polls only while playing.
+ */
+function ProgressBar({
+  getProgress,
+  active,
+  light,
+}: {
+  getProgress: () => number;
+  active: boolean;
+  light: boolean;
+}) {
+  const fillRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const update = () => {
+      if (fillRef.current) {
+        fillRef.current.style.transform = `scaleX(${getProgress()})`;
+      }
+    };
+    update();
+    if (!active) return undefined;
+    const id = setInterval(update, 500);
+    return () => clearInterval(id);
+  }, [active, getProgress]);
+
+  return (
+    <div
+      className={`h-[2px] w-full overflow-hidden rounded-full ${
+        light ? "bg-rice/20" : "bg-sumi/12"
+      }`}
+      role="progressbar"
+      aria-label="Track progress"
+    >
+      <div
+        ref={fillRef}
+        className={`h-full w-full origin-left rounded-full transition-transform duration-500 ease-linear ${
+          light ? "bg-rice/70" : "bg-sumi/55"
+        }`}
+        style={{ transform: "scaleX(0)" }}
+      />
+    </div>
+  );
+}
 
 export default function MusicPlayerControls({
   ready,
   isPlaying,
   isBuffering,
   track,
+  getProgress,
   playlists,
   activePlaylistId,
   onSelectPlaylist,
@@ -156,6 +225,18 @@ export default function MusicPlayerControls({
 
   const iconKey = isLoading ? "loading" : isPlaying ? "pause" : "play";
   const hasTrack = Boolean(track && (track.title || track.author));
+
+  const caption = hasTrack
+    ? `${track?.title ?? ""}${track?.author ? ` — ${track.author}` : ""}`
+    : "Not playing any music";
+
+  const captionColor = hasTrack
+    ? light
+      ? "text-rice/55"
+      : "text-sumi/45"
+    : light
+      ? "text-rice/40"
+      : "text-sumi/35";
 
   return (
     <div className="flex items-center gap-1.5">
@@ -220,51 +301,24 @@ export default function MusicPlayerControls({
         />
       </div>
 
-      <AnimatePresence mode="wait" initial={false}>
-        {hasTrack ? (
+      <div className="flex max-w-[4rem] flex-col gap-1">
+        <AnimatePresence mode="wait" initial={false}>
           <m.div
-            key="track"
+            key={caption}
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.3, ease }}
-            className="max-w-[4rem] overflow-hidden"
+            className="overflow-hidden"
           >
-            <div
-              className={`flex w-max animate-marquee gap-8 whitespace-nowrap font-mono text-[10px] uppercase tracking-wide ${
-                light ? "text-rice/55" : "text-sumi/45"
-              }`}
-            >
-              <span>
-                {track?.title}
-                {track?.author ? ` — ${track.author}` : ""}
-              </span>
-              <span aria-hidden="true">
-                {track?.title}
-                {track?.author ? ` — ${track.author}` : ""}
-              </span>
-            </div>
+            <MarqueeText text={caption} className={captionColor} />
           </m.div>
-        ) : (
-          <m.div
-            key="empty"
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.3, ease }}
-            className="max-w-[4rem] overflow-hidden"
-          >
-            <div
-              className={`flex w-max animate-marquee gap-8 whitespace-nowrap font-mono text-[10px] uppercase tracking-wide ${
-                light ? "text-rice/40" : "text-sumi/35"
-              }`}
-            >
-              <span>Not playing any music</span>
-              <span aria-hidden="true">Not playing any music</span>
-            </div>
-          </m.div>
+        </AnimatePresence>
+
+        {hasTrack && (
+          <ProgressBar getProgress={getProgress} active={isPlaying} light={light} />
         )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 }

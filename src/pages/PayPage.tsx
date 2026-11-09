@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { ArrowLeft, Bitcoin, Check, Copy, CreditCard, IndianRupee, Wallet } from "lucide-react";
+import { ArrowLeft, Bitcoin, Check, Copy, Heart, IndianRupee, Wallet, Coffee } from "lucide-react";
+import bmcQr from "../assets/payouts_qr/bmc_qr.png";
+import upiQr from "../assets/payouts_qr/upi_qr.png";
+import ghostQr from "../assets/payouts_qr/ghostly_qr_sign.png";
 
 // ---- Fill in your real payment details before publishing ----
 // These are placeholders so the page renders correctly out of the box;
@@ -12,21 +15,30 @@ const PAYMENT_METHODS = [
     icon: Wallet,
     value: "paypal.me/parshuramkalunkhe",
     href: "https://paypal.me/parshuramkalunkhe",
+    qr: ghostQr,
     note: "International payments, cards, and bank transfers via PayPal.",
   },
   {
-    id: "razorpay",
-    label: "Razorpay",
-    icon: CreditCard,
-    value: "razorpay.me/@REPLACE_ME",
-    // BUG FIX: this had a live href pointing at the literal placeholder
-    // URL (razorpay.me/@REPLACE_ME), so the "Open Razorpay" button was
-    // clickable and sent visitors to a real but broken page. Left as
-    // `undefined` — same as the crypto/upi cards below — until a real
-    // Razorpay payment link is filled in; the button only renders when
-    // `href` is set (see PaymentCard below).
-    href: undefined,
-    note: "UPI, cards, netbanking, and wallets — best for India-based payments.",
+    id: "patreon",
+    label: "Patreon",
+    icon: Heart,
+    value: "patreon.com/ParshuramKalunkhe",
+    // Left as `undefined` for the same reason the other cards are: don't ship
+    // a live href pointing at the literal placeholder URL. The "Open Patreon"
+    // button only renders once a real membership page is set here
+    // (see PaymentCard).
+    href: "https://www.patreon.com/cw/ParshuramKalunkhe",
+    qr: ghostQr,
+    note: "Recurring monthly support — tiers and member-only posts.",
+  },
+  {
+    id: "buymeacoffee",
+    label: "Buy Me a Coffee",
+    icon: Coffee,
+    value: "buymeacoffee.com/parshuramkalunkhe",
+    href: "https://buymeacoffee.com/parshuramkalunkhe",
+    qr: bmcQr,
+    note: "One-off tip, no account needed — quickest way to say thanks.",
   },
   {
     id: "crypto",
@@ -34,6 +46,7 @@ const PAYMENT_METHODS = [
     icon: Bitcoin,
     value: "REPLACE_WITH_YOUR_WALLET_ADDRESS",
     href: undefined,
+    qr: ghostQr,
     note: "BTC / ETH / USDT (TRC20) — double-check the network before sending.",
   },
   {
@@ -42,6 +55,7 @@ const PAYMENT_METHODS = [
     icon: IndianRupee,
     value: "parshuramkalunkhe@upi",
     href: undefined,
+    qr: upiQr,
     note: "Any UPI app — GPay, PhonePe, Paytm, or your bank's app.",
   },
 ] as const;
@@ -71,6 +85,20 @@ function PaymentCard({ method }: { method: (typeof PAYMENT_METHODS)[number] }) {
       </div>
 
       <p className="text-sm text-sumi-soft">{method.note}</p>
+
+      {"qr" in method && method.qr && (
+        <div className="flex flex-col items-center gap-2 rounded-sm border border-stone-line bg-rice p-4">
+          <img
+            src={method.qr}
+            alt={`${method.label} payment QR code`}
+            className="h-40 w-40 object-contain"
+            loading="lazy"
+          />
+          <span className="font-mono text-xs uppercase tracking-wide text-sumi/60">
+            Scan to pay with {method.label}
+          </span>
+        </div>
+      )}
 
       <div className="mt-auto flex items-center gap-2 rounded-sm border border-stone-line-strong bg-rice px-3 py-2.5">
         <code className="min-w-0 flex-1 truncate font-mono text-[13px] text-sumi">{method.value}</code>

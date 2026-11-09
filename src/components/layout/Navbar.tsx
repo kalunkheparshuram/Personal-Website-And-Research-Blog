@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { Menu, X } from "lucide-react";
-// import { navItems, YOUTUBE_PLAYLIST_ID } from "../../data/content";
 import { navItems, MUSIC_PLAYLISTS } from "../../data/content";
 import {
   loadGalleryItems,
@@ -26,7 +25,6 @@ export default function Navbar() {
   // One shared player for both the desktop and mobile control clusters
   // below, so opening/closing the mobile menu never spawns a second
   // (conflicting) audio stream.
-  // const player = useYouTubePlaylistPlayer(YOUTUBE_PLAYLIST_ID);
   const player = useYouTubePlaylistPlayer(MUSIC_PLAYLISTS);
 
   useEffect(() => {
@@ -35,7 +33,12 @@ export default function Navbar() {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
-        setScrolled(window.scrollY > 20);
+        // Functional update returns the same value when nothing changed,
+        // so React skips the re-render on most scroll frames.
+        setScrolled((prev) => {
+          const next = window.scrollY > 20;
+          return prev === next ? prev : next;
+        });
         ticking = false;
       });
     };
@@ -51,10 +54,9 @@ export default function Navbar() {
     };
   }, [open]);
 
-  // The full-screen mobile menu's background wallpaper — same source as the
-  // Hero carousel (loadGalleryItems() is cached, so opening the menu after
-  // the Hero has already mounted costs no extra fetch). Only loaded and
-  // autoplayed while the menu is actually open.
+  // The full-screen mobile menu's background wallpaper. loadGalleryItems()
+  // is cached, so opening the menu after the Hero has mounted costs no
+  // extra fetch. Only loaded and autoplayed while the menu is open.
   useEffect(() => {
     if (!open) return undefined;
 
@@ -95,10 +97,13 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 py-4 transition-all duration-300 ease-zen md:py-5 ${scrolled
-        ? "border-b border-stone-line bg-[#F5F1E8] py-3 shadow-soft"
-        : ""
-        }`}
+      // transition-all was animating padding too, forcing layout on every
+      // frame. Only animate the properties that actually look different.
+      className={`fixed inset-x-0 top-0 z-50 py-4 transition-[background-color,border-color,box-shadow] duration-300 ease-zen md:py-5 ${
+        scrolled
+          ? "border-b border-stone-line bg-[#F5F1E8] py-3 shadow-soft"
+          : ""
+      }`}
     >
       {/* Hidden YouTube player backing the music controls below — kept
           mounted here (not inside the mobile menu) so it persists and
@@ -109,48 +114,48 @@ export default function Navbar() {
         aria-hidden="true"
       />
 
-      {/* relative + z-50: without an explicit position, this row paints in
-          the page's normal-flow layer, which sits BELOW any positioned
-          sibling that has a z-index — including the fixed, z-40 mobile
-          menu right below it in the DOM. That was swallowing the logo and
-          the open/close button the instant the menu opened. */}
+      {/* relative + z-50 keeps the logo and the open/close button above
+          the fixed, z-40 mobile menu. */}
       <div className="wrap relative z-50 flex items-center justify-between">
         <a
-
           href="#hero"
-          className={`font-display text-xl transition-colors duration-300 ${scrolled && !open ? "text-sumi" : "text-rice"
-            }`}
+          className={`font-display text-xl transition-colors duration-300 ${
+            scrolled && !open ? "text-sumi" : "text-rice"
+          }`}
         >
           PK
           <span
-            className={`transition-colors duration-300 ${scrolled && !open ? "text-moss" : "text-moss-soft"
-              }`}
+            className={`transition-colors duration-300 ${
+              scrolled && !open ? "text-moss" : "text-moss-soft"
+            }`}
           >
             .
           </span>
         </a>
 
-        {/* Desktop nav — light (matches the hero's photo backdrop) until the
-            page scrolls onto the light rice sections, then switches to ink. */}
+        {/* Desktop nav — light until the page scrolls onto the light rice
+            sections, then switches to ink. */}
         <nav className="hidden md:flex items-center gap-8">
           {navItems.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className={`font-mono text-xs uppercase tracking-wide transition-colors duration-200 ${scrolled
-                ? "text-sumi/70 hover:text-moss-deep"
-                : "text-rice/85 hover:text-moss-soft"
-                }`}
+              className={`font-mono text-xs uppercase tracking-wide transition-colors duration-200 ${
+                scrolled
+                  ? "text-sumi/70 hover:text-moss-deep"
+                  : "text-rice/85 hover:text-moss-soft"
+              }`}
             >
               {item.label}
             </a>
           ))}
           <a
             href="./pay.html"
-            className={`!py-2 !px-4 text-[11px] transition-colors duration-300 ${scrolled
-              ? "btn-ghost"
-              : "inline-flex items-center gap-2 rounded-sm border border-rice/40 font-mono uppercase tracking-wide text-rice hover:bg-rice hover:text-sumi"
-              }`}
+            className={`!py-2 !px-4 text-[11px] transition-colors duration-300 ${
+              scrolled
+                ? "btn-ghost"
+                : "inline-flex items-center gap-2 rounded-sm border border-rice/40 font-mono uppercase tracking-wide text-rice hover:bg-rice hover:text-sumi"
+            }`}
           >
             Say hello
           </a>
@@ -160,23 +165,24 @@ export default function Navbar() {
             isPlaying={player.isPlaying}
             isBuffering={player.isBuffering}
             track={player.currentTrack}
+            getProgress={player.getProgress}
             playlists={player.playlists}
             activePlaylistId={player.activePlaylistId}
             onSelectPlaylist={player.selectPlaylist}
             onPrev={player.prev}
             onPlayPause={player.playPause}
             onNext={player.next}
-            light={!scrolled}                 
-            pickerPlacement="down"     
+            light={!scrolled}
+            pickerPlacement="down"
           />
         </nav>
 
-        {/* Mobile hamburger — always light, matching the mobile bar's
-            solid dark background regardless of scroll position. */}
+        {/* Mobile hamburger */}
         <button
           type="button"
-          className={`flex z-50 h-10 w-10 items-center justify-center transition-colors duration-300 md:hidden ${scrolled && !open ? "text-sumi" : "text-rice"
-            }`}
+          className={`flex z-50 h-10 w-10 items-center justify-center transition-colors duration-300 md:hidden ${
+            scrolled && !open ? "text-sumi" : "text-rice"
+          }`}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           aria-controls="mobile-menu"
@@ -190,9 +196,8 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Full-screen mobile menu, with a wallpaper slideshow background —
-          same carousel treatment as the Hero, reskinned for a frosted-glass
-          takeover feel. Desktop is untouched (md:hidden). */}
+      {/* Full-screen mobile menu with a wallpaper slideshow background.
+          Desktop is untouched (md:hidden). */}
       <AnimatePresence>
         {open && (
           <m.div
@@ -208,20 +213,20 @@ export default function Navbar() {
                   key={slide.url}
                   className="hero-slide absolute inset-0 bg-cover bg-center"
                   style={{
-                    // Heavily blurred by the scrim on top of it, so a low
-                    // width/quality here is invisible in practice and
-                    // saves real bytes on mobile.
                     backgroundImage: `url(${optimizedImageUrl(slide.url, 720, 45)})`,
                     opacity: i === menuIndex ? 1 : 0,
                     transform: i === menuIndex ? "scale(1)" : "scale(1.06)",
-                    filter: "grayscale(0.25) saturate(0.85)",
+                    // The CSS `filter` (grayscale + saturate) was removed:
+                    // it forces an extra full-screen GPU pass under the
+                    // blur. The dark overlay below already mutes colour.
                   }}
                   role="img"
                   aria-label={slide.label}
                   aria-hidden={i !== menuIndex}
                 />
               ))}
-              <div className="absolute inset-0 bg-sumi/70 backdrop-blur-xl" />
+              {/* backdrop-blur-md instead of -xl: far cheaper on phones. */}
+              <div className="absolute inset-0 bg-sumi/75 backdrop-blur-md" />
             </div>
 
             <nav
@@ -283,14 +288,15 @@ export default function Navbar() {
                   isPlaying={player.isPlaying}
                   isBuffering={player.isBuffering}
                   track={player.currentTrack}
+                  getProgress={player.getProgress}
                   playlists={player.playlists}
                   activePlaylistId={player.activePlaylistId}
                   onSelectPlaylist={player.selectPlaylist}
                   onPrev={player.prev}
                   onPlayPause={player.playPause}
                   onNext={player.next}
-                  light                     // mobile: keep as-is. Desktop: keep light={!scrolled}
-                  pickerPlacement="up"      // mobile only
+                  light
+                  pickerPlacement="up"
                 />
               </m.div>
             </nav>

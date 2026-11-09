@@ -118,7 +118,7 @@ function BlogReader({
 
       {status === "ready" && body && (
         <div
-          className="prose-zen max-w-[68ch] text-sumi-soft leading-[1.85]"
+          className="prose-zen text-sumi-soft leading-[1.85]"
           dangerouslySetInnerHTML={{ __html: miniMarkdown(body) }}
         />
       )}

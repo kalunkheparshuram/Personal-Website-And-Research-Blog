@@ -12,99 +12,109 @@ export const navItems: NavItem[] = [
 // Ported 1:1 from the original site's skills.js SKILLS object.
 export const skillGroups: SkillGroup[] = [
   {
-    category: "Security Operations",
+    category: "Vulnerability Assessment & Penetration Testing",
     skills: [
-      "SOC Operations",
-      "Security Monitoring",
-      "Alert Triage",
-      "Incident Investigation",
-      "Threat Detection",
-      "Log Analysis",
-      "IOC Analysis",
-      "Incident Response",
+      "Vulnerability Assessment",
+      "Penetration Testing",
+      "Reconnaissance",
+      "Enumeration",
+      "Vulnerability Identification",
+      "Exploitation",
+      "Security Testing",
+      "Security Reporting",
     ],
   },
 
   {
-    category: "SIEM, XDR & Endpoint Security",
+    category: "Web Application Security",
     skills: [
-      "Microsoft Sentinel",
-      "Microsoft Defender",
-      "Security Event Analysis",
-      "Detection & Investigation",
-      "Email Security",
+      "OWASP Top 10",
+      "SQL Injection",
+      "Cross-Site Scripting (XSS)",
+      "Broken Access Control",
+      "IDOR",
+      "Authentication & Authorization Testing",
+      "API Security Testing",
+      "Security Misconfiguration",
     ],
   },
 
   {
-    category: "Network & Systems Security",
+    category: "Network & Infrastructure Security",
     skills: [
-      "Network Security",
+      "Network Penetration Testing",
       "TCP/IP",
       "DNS",
       "HTTP/HTTPS",
+      "Port Scanning",
+      "Service Enumeration",
+      "Network Security Assessment",
       "Wireshark",
-      "Windows",
-      "Linux",
-      "Active Directory",
     ],
   },
 
   {
-    category: "Security Assessment & Research",
+    category: "Systems & Active Directory Security",
     skills: [
-      "Vulnerability Assessment",
-      "Risk Assessment",
+      "Linux Security",
+      "Windows Security",
+      "Active Directory Fundamentals",
+      "Privilege Escalation Fundamentals",
+      "System Enumeration",
+      "Security Misconfiguration Analysis",
+    ],
+  },
+
+  {
+    category: "Vulnerability Research & Risk Assessment",
+    skills: [
       "CVE Analysis",
       "CVSS",
-      "Web Application Security",
-      "OWASP Top 10",
+      "Risk Assessment",
+      "Impact Analysis",
+      "Proof of Concept (PoC) Validation",
       "Responsible Disclosure",
+      "Bug Bounty Hunting",
+      "Security Research",
     ],
   },
 
   {
-    category: "Bug Bounty & Security Research",
+    category: "VAPT Tools & Technologies",
     skills: [
-      "Bug Bounty Hunting",
-      "Security Research",
       "Burp Suite",
       "Nmap",
       "OWASP ZAP",
+      "Nuclei",
       "ffuf",
-      "nuclei",
-      "API Security",
+      "sqlmap",
+      "Wireshark",
+      "Kali Linux",
     ],
   },
 
   {
     category: "Scripting & Development",
-    skills: ["Python", "Git", "GitHub"],
+    skills: [
+      "Python (Basic)",
+      "Git",
+      "GitHub",
+    ],
   },
 ];
 
 // Ported 1:1 from the original site's PROJECTS array (jsDelivr-hosted screenshots).
 export const projects: Project[] = [
-  // SOC / Defensive Security Projects
-  {
-    id: "security-monitoring-lab",
-    title: "Security Monitoring & Threat Detection Lab",
-    description:
-      "Practical SOC lab for analyzing security events, investigating alerts, identifying indicators of compromise, and documenting incident investigation workflows.",
-    tech: [
-      "microsoft-sentinel",
-      "microsoft-defender",
-      "siem",
-      "xdr",
-      "kql",
-      "windows",
-      "linux",
-    ],
-    repo: "https://github.com/kalunkheparshuram/Security-Monitoring-And-Threat-Detection-Lab",
-    imageUrl: "https://www.cyberwhiz.co.uk/images/blue-team-hero.png",
-  },
-
   // Security Research — secondary
+  {
+    id: "inetgateway",
+    title: "INETGateway - (Local Utility Tool For Network Monitoring & Threat Intilligence).",
+    description:
+      "One Python file, standard library only, rounded light and true-black dark themes. Offline by default: the only network activity it can ever start is the optional threat intel lookups you switch on yourself.",
+    tech: ["python", "networking", "threat intel", "shell", "claude-code"],
+    repo: "https://github.com/kalunkheparshuram/inetgateway",
+    imageUrl: "https://cdn.jsdelivr.net/gh/kalunkheparshuram/inetgateway@main/docs/images/dashboard-light.png",
+  },
   {
     id: "vulnerability-assessment-lab",
     title: "Offensive Security & Vulnerability Assessment Lab",
@@ -114,7 +124,7 @@ export const projects: Project[] = [
     repo: "https://github.com/kalunkheparshuram/Offensive-Security-And-Vulnerability-Assessment-Lab",
     imageUrl: "https://linuxhandbook.com/content/images/size/w1200/format/avif/2021/11/homelab-setup.webp",
   },
-  
+
   // Technical / Personal Projects
   {
     id: "media-dl",
@@ -140,10 +150,10 @@ export const projects: Project[] = [
 export const contactEmail = "parshuramkalunkhe@proton.me";
 
 export const contactLinks: ContactLink[] = [
-  { label: "GitHub", href: "https://github.com/kalunkheparshuram"},
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/parshuramkalunkhe"},
+  { label: "GitHub", href: "https://github.com/kalunkheparshuram" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/parshuramkalunkhe" },
   { label: "Instagram", href: "https://www.instagram.com/parshuramkalunkhe" },
-  { label: "Telegram", href: "https://t.me/parshuramkalunkhe"},
+  { label: "Telegram", href: "https://t.me/parshuramkalunkhe" },
 ];
 
 export const contactMeta = [
@@ -234,6 +244,10 @@ export const GALLERY_BRANCH = "main";
 // A Wall - https://youtube.com/playlist?list=PLNX0yhoJ3Xlc&si=kVLxSjanEFYPwjJ_
 // Powfu - https://youtube.com/playlist?list=PLReHmrPAnnKs&si=G3xNO-wZHJN-0jB1
 // Jeremy Zucker - https://youtube.com/playlist?list=PLUZo3u0JVRok&si=REnbulPEs-GEpq74
+// Corbyn Kites - https://youtube.com/playlist?list=PLXldn-VmoMno&si=frfdShRn2gsoi-jb
+// Owl City - https://youtube.com/playlist?list=PLE3BODlMxRRc&si=wfxn7ql2Za0Zm6WN
+// Dreamcore - https://youtube.com/playlist?list=PLJu1wWVdN0JQ&si=whyFLpX9rfFFDXZL
+// Mantras - https://youtube.com/playlist?list=PLNscqEhKeTPI&si=c01CWWmqG-NzyfYy
 
 export interface MusicPlaylist {
   /** Short stable key (used internally, never shown). */
@@ -247,10 +261,14 @@ export interface MusicPlaylist {
 // Add, remove or reorder freely. The first entry is the default.
 export const MUSIC_PLAYLISTS: MusicPlaylist[] = [
   { id: "main", label: "Main mix", playlistId: "PLGxszvntB1R0" },
+  { id: "mantra", label: "M. Mantra's", playlistId: "PLNscqEhKeTPI" },
   { id: "flawedmangoes", label: "Flawed Mangoes", playlistId: "PLJ9iEEg9Xgm0" },
   { id: "bluehour", label: "Blue Hour", playlistId: "PLPZEnA8Wgf8Y" },
   { id: "chillhop", label: "ChillHop", playlistId: "PLQwRmTwWx0uaoRXVcKbUDW0wm8G_WJzDI" },
-  { id: "awall", label: "A Wall", playlistId: "PLNX0yhoJ3Xlc"},
-  { id: "powfu", label: "Powfu", playlistId: "PLReHmrPAnnKs"},
-  { id: "jeremyzucker", label: "Jeremy Zucker", playlistId: "PLUZo3u0JVRok"},
+  { id: "awall", label: "A Wall", playlistId: "PLNX0yhoJ3Xlc" },
+  { id: "powfu", label: "Powfu", playlistId: "PLReHmrPAnnKs" },
+  { id: "jeremyzucker", label: "Jeremy Zucker", playlistId: "PLUZo3u0JVRok" },
+  { id: "corbynkites", label: "Corbyn Kites", playlistId: "PLXldn-VmoMno" },
+  { id: "owlcity", label: "Owl City", playlistId: "PLE3BODlMxRRc" },
+  { id: "dreamcore", label: "DreamCore", playlistId: "PLJu1wWVdN0JQ" },
 ];
